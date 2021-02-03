@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="a58b07e8-e3f6-48d2-ad2b-678b7aaf3982" name="Xaya">
+        <fileTransfer rootFolder="/root/rpc-explorer/btc-rpc-explorer" accessType="SFTP" host="167.99.154.94" port="22" sshConfigId="c19ddb11-5841-4fb8-a496-a6de494063f9" sshConfig="root@167.99.154.94:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
