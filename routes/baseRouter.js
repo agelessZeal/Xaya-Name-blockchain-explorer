@@ -80,6 +80,8 @@ router.get("/", function(req, res, next) {
 		res.locals.getblockchaininfo = getblockchaininfo;
 
 		res.locals.difficultyPeriod = parseInt(Math.floor(getblockchaininfo.blocks / coinConfig.difficultyAdjustmentBlockCount));
+
+		console.log('difficultyPeriod:',res.locals.difficultyPeriod)
 		
 
 		var blockHeights = [];
@@ -94,6 +96,8 @@ router.get("/", function(req, res, next) {
 			blockHeights.push(0);
 		}
 
+		console.log('blockHeight',blockHeights)
+
 		// promiseResults[5]
 		promises.push(coreApi.getBlocksStatsByHeight(blockHeights));
 
@@ -104,6 +108,7 @@ router.get("/", function(req, res, next) {
 			});
 		}));
 
+		console.log('chaing info:',getblockchaininfo)
 		if (getblockchaininfo.chain !== 'regtest') {
 			var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
 
@@ -134,6 +139,8 @@ router.get("/", function(req, res, next) {
 			Promise.all(promises).then(function(promiseResults) {
 				res.locals.mempoolInfo = promiseResults[0];
 				res.locals.miningInfo = promiseResults[1];
+
+				console.log('getBlocksByHeight promiseResults: ',promiseResults)
 
 				var rawSmartFeeEstimates = promiseResults[2];
 

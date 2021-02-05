@@ -4,17 +4,17 @@ Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 var currencyUnits = [
 	{
 		type:"native",
-		name:"XAYA",
+		name:"CHI",
 		multiplier:1,
 		default:true,
-		values:["", "xaya", "XAYA"],
+		values:["", "chi", "CHI"],
 		decimalPlaces:8
 	},
 	{
 		type:"native",
-		name:"mBTC",
+		name:"mCHI",
 		multiplier:1000,
-		values:["mbtc"],
+		values:["mchi"],
 		decimalPlaces:5
 	},
 	{
@@ -50,24 +50,24 @@ var currencyUnits = [
 ];
 
 module.exports = {
-	name:"Bitcoin",
-	ticker:"BTC",
+	name:"XAYA",
+	ticker:"CHI",
 	logoUrlsByNetwork:{
-		"main":"./img/logo/btc.svg",
+		"main":"./img/logo/xaya.svg",
 		"test":"./img/logo/tbtc.svg",
 		"regtest":"./img/logo/tbtc.svg",
 		"signet":"./img/logo/signet.svg"
 	},
 	siteTitlesByNetwork: {
-		"main":"Bitcoin Explorer",
+		"main":"Xaya Explorer",
 		"test":"Testnet Explorer",
 		"regtest":"Regtest Explorer",
 		"signet":"Signet Explorer",
 	},
-	siteDescriptionHtml:"<b>BTC Explorer</b> is <a href='https://github.com/janoside/btc-rpc-explorer). If you run your own [Bitcoin Full Node](https://bitcoin.org/en/full-node), **BTC Explorer** can easily run alongside it, communicating via RPC calls. See the project [ReadMe](https://github.com/janoside/btc-rpc-explorer) for a list of features and instructions for running.",
-	nodeTitle:"Bitcoin Full Node",
-	nodeUrl:"https://bitcoin.org/en/full-node",
-	demoSiteUrl: "https://explorer.btc21.org",
+	siteDescriptionHtml:"<b>Xaya Explorer</b>",
+	nodeTitle:"Xaya Full Node",
+	nodeUrl:"",
+	demoSiteUrl: "",
 	miningPoolsConfigUrls:[
 		"https://raw.githubusercontent.com/btc21/Bitcoin-Known-Miners/master/miners.json",
 		"https://raw.githubusercontent.com/btccom/Blockchain-Known-Pools/master/pools.json",
@@ -85,7 +85,7 @@ module.exports = {
 	targetBlockTimeSeconds: 600,
 	targetBlockTimeMinutes: 10,
 	currencyUnits:currencyUnits,
-	currencyUnitsByName:{"BTC":currencyUnits[0], "mBTC":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
+	currencyUnitsByName:{"CHI":currencyUnits[0], "mCHI":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
 	baseCurrencyUnit:currencyUnits[3],
 	defaultCurrencyUnit:currencyUnits[0],
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],
