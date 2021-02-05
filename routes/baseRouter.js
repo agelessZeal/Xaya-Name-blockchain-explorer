@@ -58,11 +58,7 @@ router.get("/", function(req, res, next) {
 	var feeConfTargets = [1, 6, 144, 1008];
 	res.locals.feeConfTargets = feeConfTargets;
 
-
-
 	console.log('exchangeRates:',res.locals.exchangeRates)
-	console.log('utxoSetSummary:',res.locals.utxoSetSummary)
-	console.log('utxoSetSummaryPending:',res.locals.utxoSetSummaryPending)
 	console.log('networkVolume:',res.locals.networkVolume)
 
 	var promises = [];
@@ -86,9 +82,6 @@ router.get("/", function(req, res, next) {
 
 		res.locals.difficultyPeriod = parseInt(Math.floor(getblockchaininfo.blocks / coinConfig.difficultyAdjustmentBlockCount));
 
-		console.log('difficultyPeriod:',res.locals.difficultyPeriod)
-
-
 		var blockHeights = [];
 		if (getblockchaininfo.blocks) {
 			// +1 to page size here so we have the next block to calculate T.T.M.
@@ -101,8 +94,6 @@ router.get("/", function(req, res, next) {
 			blockHeights.push(0);
 		}
 
-		console.log('blockHeight',blockHeights)
-
 		// promiseResults[5]
 		promises.push(coreApi.getBlocksStatsByHeight(blockHeights));
 
@@ -113,7 +104,7 @@ router.get("/", function(req, res, next) {
 			});
 		}));
 
-		console.log('chain info:',getblockchaininfo)
+		console.log('getblockchaininfo:',getblockchaininfo)
 		if (getblockchaininfo.chain !== 'regtest') {
 			var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
 
@@ -222,6 +213,7 @@ router.get("/node-status", function(req, res, next) {
 
 		coreApi.getNetworkInfo().then(function(getnetworkinfo) {
 			res.locals.getnetworkinfo = getnetworkinfo;
+			console.log('res.locals.getNetworkInfo',getnetworkinfo)
 
 			coreApi.getUptimeSeconds().then(function(uptimeSeconds) {
 				res.locals.uptimeSeconds = uptimeSeconds;
@@ -229,10 +221,17 @@ router.get("/node-status", function(req, res, next) {
 				coreApi.getNetTotals().then(function(getnettotals) {
 					res.locals.getnettotals = getnettotals;
 
-					res.render("node-status");
+					coreApi.getMiningInfo().then( function (miningInfo) {
+						res.locals.miningInfo = miningInfo;
+						res.render("node-status");
 
-					next();
+						next();
 
+					}).catch(function(err) {
+						res.locals.userMessage = "Error getting node status: (id=3), err=" + err;
+						res.render("node-status");
+						next();
+					});
 				}).catch(function(err) {
 					res.locals.userMessage = "Error getting node status: (id=0), err=" + err;
 
@@ -657,6 +656,7 @@ router.get("/block-height/:blockHeight", function(req, res, next) {
 		promises.push(new Promise(function(resolve, reject) {
 			coreApi.getBlockByHashWithTransactions(result.hash, limit, offset).then(function(result) {
 				res.locals.result.getblock = result.getblock;
+				console.log('result.getblock ',result.getblock)
 				res.locals.result.transactions = result.transactions;
 				res.locals.result.txInputsByTransaction = result.txInputsByTransaction;
 
