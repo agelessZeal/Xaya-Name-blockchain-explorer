@@ -380,6 +380,7 @@ app.onStartup = function() {
 	global.config = config;
 	global.coinConfig = coins[config.coin];
 	global.coinConfigs = coins;
+	console.log('coinconfig:',global.config)
 
 	global.specialTransactions = {};
 	global.specialBlocks = {};

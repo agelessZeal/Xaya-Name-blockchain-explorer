@@ -51,7 +51,6 @@ router.get("/", function(req, res, next) {
 	// don't need timestamp on homepage "blocks-list", this flag disables
 	res.locals.hideTimestampColumn = true;
 
-
 	// variables used by blocks-list.pug
 	res.locals.offset = 0;
 	res.locals.sort = "desc";
@@ -59,6 +58,12 @@ router.get("/", function(req, res, next) {
 	var feeConfTargets = [1, 6, 144, 1008];
 	res.locals.feeConfTargets = feeConfTargets;
 
+
+
+	console.log('exchangeRates:',res.locals.exchangeRates)
+	console.log('utxoSetSummary:',res.locals.utxoSetSummary)
+	console.log('utxoSetSummaryPending:',res.locals.utxoSetSummaryPending)
+	console.log('networkVolume:',res.locals.networkVolume)
 
 	var promises = [];
 
@@ -82,7 +87,7 @@ router.get("/", function(req, res, next) {
 		res.locals.difficultyPeriod = parseInt(Math.floor(getblockchaininfo.blocks / coinConfig.difficultyAdjustmentBlockCount));
 
 		console.log('difficultyPeriod:',res.locals.difficultyPeriod)
-		
+
 
 		var blockHeights = [];
 		if (getblockchaininfo.blocks) {
@@ -108,7 +113,7 @@ router.get("/", function(req, res, next) {
 			});
 		}));
 
-		console.log('chaing info:',getblockchaininfo)
+		console.log('chain info:',getblockchaininfo)
 		if (getblockchaininfo.chain !== 'regtest') {
 			var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
 
@@ -140,7 +145,6 @@ router.get("/", function(req, res, next) {
 				res.locals.mempoolInfo = promiseResults[0];
 				res.locals.miningInfo = promiseResults[1];
 
-				console.log('getBlocksByHeight promiseResults: ',promiseResults)
 
 				var rawSmartFeeEstimates = promiseResults[2];
 
@@ -160,8 +164,8 @@ router.get("/", function(req, res, next) {
 				res.locals.smartFeeEstimates = smartFeeEstimates;
 
 
-				res.locals.hashrate1d = promiseResults[3];
-				res.locals.hashrate7d = promiseResults[4];
+				res.locals.hashrate1d = promiseResults[3]['sha256d'];
+				res.locals.hashrate7d = promiseResults[4]['sha256d'];
 
 				
 				var rawblockstats = promiseResults[5];
