@@ -210,6 +210,21 @@ function shouldCacheTransaction(tx) {
 	return true;
 }
 
+function getHistoryNameList() {
+	return tryCacheThenRpcApi(miscCache, "getNameList", 10 * ONE_SEC, rpcApi.getNameHistoryInfo);
+}
+
+function getNameList(name) {
+	return tryCacheThenRpcApi(miscCache, "getNameList-" + name, ONE_YR, function() {
+		return rpcApi.getNameListInfo(name);
+	});
+}
+
+function getNameScanList(start,count,optional) {
+	return tryCacheThenRpcApi(miscCache, "getNameScanList-", ONE_YR, function() {
+		return rpcApi.getNameScanListInfo(start,count,optional);
+	});
+}
 
 
 function getBlockchainInfo() {
@@ -1084,5 +1099,7 @@ module.exports = {
 	getBlocksStatsByHeight: getBlocksStatsByHeight,
 	buildBlockAnalysisData: buildBlockAnalysisData,
 	getBlockHeaderByHeight: getBlockHeaderByHeight,
-	getBlockHeadersByHeight: getBlockHeadersByHeight
+	getBlockHeadersByHeight: getBlockHeadersByHeight,
+	getNameList:getNameList,
+	getNameScanList:getNameScanList,
 };
