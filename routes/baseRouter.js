@@ -499,12 +499,157 @@ router.get("/names", function (req, res, next) {
         sort = req.query.sort;
     }
 
-    res.locals.limit = 1200;
+    res.locals.limit = 3000;
+    limit = 3000;
     res.locals.offset = 0;
     res.locals.sort = sort;
     res.locals.paginationBaseUrl = "./names";
 
-    coreApi.getNameScanList("", 1200, '{"maxConf": 1200}').then(function (nameList) {
+
+    coreApi.getBlockchainInfo().then(function (getblockchaininfo) {
+        res.locals.nameCount = 0;
+        res.locals.nameOffset = 0;
+        res.locals.blockCount = getblockchaininfo.blocks;
+        res.locals.blockOffset = offset;
+
+        let blockHeights = [];
+
+
+        for (var i = (getblockchaininfo.blocks - offset); i > (getblockchaininfo.blocks - offset - limit - 1); i--) {
+            if (i >= 0) {
+                blockHeights.push(i);
+            }
+        }
+
+
+        var promises = [];
+
+        promises.push(coreApi.getBlocksByHeight(blockHeights));
+
+        // promises.push(coreApi.getRawTransactionsWithInputs(transactions));
+
+        Promise.all(promises).then(function (promiseResults) {
+
+            // var rawTxResult = promiseResults[0];
+            let blocks = promiseResults[0];
+
+            let transactions = [];
+
+            for (let i = 0; i < blocks.length; i++) {
+
+                let txs =  blocks[i].tx
+
+                for (var  index = 0 ;index<txs.length;index++){
+                    transactions.push(txs[index])
+                }
+            }
+
+            // console.log('blocks',blocks)
+            // console.log('transactions',transactions)
+
+            coreApi.getRawTransactionsWithInputs(transactions).then(function (rawTxResult) {
+                let transactions = rawTxResult.transactions;
+
+                // res.locals.transactions = rawTxResult.transactions;
+                // res.locals.txInputsByTransaction = rawTxResult.txInputsByTransaction;
+                console.log('transactions length',rawTxResult.transactions.length)
+                let nameList = []
+                for (let i = 0; i < rawTxResult.transactions.length; i++) {
+                    let transaction = rawTxResult.transactions[i];
+
+
+                    let vout = transaction.vout;
+
+                    for (let k = 0; k < vout.length; k++){
+
+                        if ( vout[k]['scriptPubKey'] && vout[k]['scriptPubKey']["nameOp"] ){
+                            let block = blocks.find(item => item.tx.includes(transaction.txid))
+                            console.log('scriptPubKey',vout[k]['scriptPubKey'],block.height)
+                            nameList.push({
+                                name:vout[k]['scriptPubKey']["nameOp"]["name"],
+                                transaction:transaction,
+                                txid:transaction.txid,
+                                operation:vout[k]['scriptPubKey']["nameOp"]["op"],
+                                height: block.height,
+                                block:block,
+                                value:vout[k]['scriptPubKey']["nameOp"]["value"]
+                            })
+                        }
+                    }
+                }
+
+                if(nameList.length > 0 ){
+                    res.locals.nameList = nameList;
+                    res.locals.nameCount = nameList.length;
+
+                    console.log('nameList:', nameList)
+
+                    res.render("names");
+
+                    next();
+                }else {
+                    res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+                    res.locals.userMessage = "Error:  " ;
+
+                    res.render("names");
+
+                    next();
+                }
+
+            }) .catch(function (err) {
+                res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+
+                res.render("names");
+
+                next();
+            });
+        })
+            .catch(function (err) {
+                res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+
+                res.render("names");
+
+                next();
+            });
+
+
+    }).catch(function (err) {
+        res.locals.userMessage = "Error: " + err;
+
+        res.render("names");
+
+        next();
+    });
+});
+
+router.get("/names-scan", function (req, res, next) {
+    var limit = config.site.browseBlocksPageSize;
+    var offset = 0;
+    var sort = "desc";
+    let search = ''
+
+    if (req.query.limit) {
+        limit = parseInt(req.query.limit);
+    }
+
+    if (req.query.search) {
+        search = req.query.search;
+    }
+
+    if (req.query.offset) {
+        offset = parseInt(req.query.offset);
+    }
+
+    if (req.query.sort) {
+        sort = req.query.sort;
+    }
+
+    res.locals.limit = 1000;
+    res.locals.offset = 0;
+    res.locals.sort = sort;
+    res.locals.paginationBaseUrl = "./names-scan";
+
+    coreApi.getNameScanList(search, 1000, '{"maxConf": 1000}').then(function (nameList) {
         res.locals.nameCount = 0;
         res.locals.nameOffset = 0;
         res.locals.nameCount = nameList.length;
@@ -515,7 +660,6 @@ router.get("/names", function (req, res, next) {
         let transactions = [];
         if (sort == "desc") {
             nameList = nameList.sort((a, b) => a.height < b.height ? 1 : -1)
-
         } else {
             nameList = nameList.sort((a, b) => a.height > b.height ? 1 : -1)
         }
@@ -531,41 +675,27 @@ router.get("/names", function (req, res, next) {
 
         var promises = [];
 
-        // promises.push(coreApi.getBlocksByHeight(blockHeights));
-
         promises.push(coreApi.getRawTransactionsWithInputs(transactions));
 
         Promise.all(promises).then(function (promiseResults) {
 
             var rawTxResult = promiseResults[0];
-            // let blocks = promiseResults[0];
-            // console.log('blocks',blocks)
-
-            // res.locals.transactions = rawTxResult.transactions;
-            // res.locals.txInputsByTransaction = rawTxResult.txInputsByTransaction;
-
-            // console.log('rawTxResult',rawTxResult)
 
             for (let i = 0; i < nameList.length; i++) {
                 let name = nameList[i];
-                // let block = blocks.find(item => item.height === name.height)
-				// console.log('vout',block.coinbaseTx.vout)
-				// console.log('vin',block.coinbaseTx.vin)
                 let transaction =  rawTxResult.transactions.find(item => item.txid === name.txid)
-                // name.block = block;
                 name.transaction = transaction;
 
                 let vout = transaction.vout;
 
-				if (vout.length > name.vout){
-					let operation = vout[name.vout]['scriptPubKey']["nameOp"]["op"]
-					name.operation = operation;
-				}
+                if (vout.length > name.vout){
+                    let operation = vout[name.vout]['scriptPubKey']["nameOp"]["op"]
+                    name.operation = operation;
+                }
 
             }
 
             res.locals.nameList = nameList;
-            // console.log('nameList:', nameList)
 
             res.render("names");
 
@@ -578,7 +708,6 @@ router.get("/names", function (req, res, next) {
 
                 next();
             });
-
 
     }).catch(function (err) {
         res.locals.userMessage = "Error: " + err;
