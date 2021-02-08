@@ -55,7 +55,8 @@ div.table-responsive
 								span  ""
 
 
-						td.data-cell.text-monospace.text-right #{name.name.toLocaleString()}
+						td.data-cell.text-monospace.text-right
+							a(href=("./name?name=" + name.name)) #{name.name.toLocaleString()}
 						td.data-cell.text-monospace.text-center(style="max-width: 500px;overflow:auto;display:block")
 							if (name.value)
 								span  #{name.value.toLocaleString()}

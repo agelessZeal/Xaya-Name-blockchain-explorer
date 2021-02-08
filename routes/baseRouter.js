@@ -635,17 +635,15 @@ router.get("/names-scan", function (req, res, next) {
     }
     console.log('search',req.query,search)
 
-    res.locals.limit = 1000;
+    res.locals.limit = 100;
     res.locals.offset = 0;
     res.locals.sort = sort;
     res.locals.paginationBaseUrl = "./names-scan";
 
-    coreApi.getNameScanList(search, 1000, '{"maxConf": 1000}').then(function (nameList) {
+    coreApi.getNameScanList(search, 100, '{"maxConf": 1000}').then(function (nameList) {
         res.locals.nameCount = 0;
         res.locals.nameOffset = 0;
         res.locals.nameCount = nameList.length;
-
-        nameList = nameList.sort((a, b) => a.height > b.height ? 1 : -1)
 
         let blockHeights = [];
         let transactions = [];
@@ -709,6 +707,114 @@ router.get("/names-scan", function (req, res, next) {
     });
 });
 
+
+router.get("/name", function (req, res, next) {
+
+    let name = ''
+    if (req.query.name) {
+        name = req.query.name;
+    }
+
+    res.locals.limit = 100;
+    res.locals.offset = 0;
+    res.locals.sort = 'desc';
+    res.locals.paginationBaseUrl = "./name";
+
+    coreApi.getHistoryNameList(name).then(function (nameList) {
+
+
+        if(nameList.length >  100){
+            nameList =nameList.slice(0,99)
+        }
+
+        res.locals.nameOffset = 0;
+        res.locals.nameCount = nameList.length;
+
+        nameList = nameList.sort((a, b) => a.height < b.height ? 1 : -1)
+
+        let transactions = [];
+
+        for (let i = 0; i < nameList.length; i++) {
+            transactions.push(nameList[i].txid)
+        }
+
+        coreApi.getRawTransactionsWithInputs(transactions).then(function (rawTxResult) {
+
+            for (let i = 0; i < nameList.length; i++) {
+                let name = nameList[i];
+                let transaction =  rawTxResult.transactions.find(item => item.txid === name.txid)
+                name.transaction = transaction;
+
+                let vout = transaction.vout;
+
+                if (vout.length > name.vout){
+                    let operation = vout[name.vout]['scriptPubKey']["nameOp"]["op"]
+                    name.operation = operation;
+                }
+            }
+
+            res.locals.nameList = nameList;
+            res.render("names");
+
+            next();
+
+        })
+            .catch(function (err) {
+            res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+
+            res.render("names");
+
+            next();
+        });
+
+
+
+
+    }).catch(function (err) {
+        res.locals.userMessage = "Error: " + err;
+
+        res.render("names");
+
+        next();
+    });
+});
+
+
+router.get("/name-detail/:name", function (req, res, next) {
+
+    // let name = ''
+    // if (req.query.name) {
+    //     name = req.query.query;
+    // }
+    var name = req.params.name;
+
+    console.log('name',name)
+
+    res.locals.limit = 100;
+    res.locals.offset = 0;
+    res.locals.paginationBaseUrl = "./names-scan";
+
+    coreApi.getHistoryNameList(name).then(function (nameList) {
+        res.locals.nameCount = 0;
+        res.locals.nameOffset = 0;
+        res.locals.nameCount = nameList.length;
+
+        nameList = nameList.sort((a, b) => a.height > b.height ? 1 : -1)
+
+        res.locals.nameList = nameList;
+
+        res.render("names");
+
+        next();
+
+    }).catch(function (err) {
+        res.locals.userMessage = "Error: " + err;
+
+        res.render("names");
+
+        next();
+    });
+});
 router.get("/mining-summary", function (req, res, next) {
     coreApi.getBlockchainInfo().then(function (getblockchaininfo) {
         res.locals.currentBlockHeight = getblockchaininfo.blocks;

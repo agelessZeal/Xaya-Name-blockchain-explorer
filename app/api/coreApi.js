@@ -210,8 +210,10 @@ function shouldCacheTransaction(tx) {
 	return true;
 }
 
-function getHistoryNameList() {
-	return tryCacheThenRpcApi(miscCache, "getNameList", 10 * ONE_SEC, rpcApi.getNameHistoryInfo);
+function getHistoryNameList(name) {
+	return tryCacheThenRpcApi(miscCache, "getNameList", 100 * ONE_SEC, function() {
+		return rpcApi.getNameHistoryInfo(name);
+	});
 }
 
 function getNameList(name) {
@@ -1102,4 +1104,5 @@ module.exports = {
 	getBlockHeadersByHeight: getBlockHeadersByHeight,
 	getNameList:getNameList,
 	getNameScanList:getNameScanList,
+	getHistoryNameList:getHistoryNameList,
 };

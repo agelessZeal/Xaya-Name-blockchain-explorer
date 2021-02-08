@@ -71,8 +71,8 @@ function getNameListInfo(name) {
 	}
 }
 
-function getNameHistoryInfo() {
-	return getRpcData("name_history");
+function getNameHistoryInfo(name) {
+	return getRpcDataWithParams({method:"name_history", parameters:[name]});
 }
 
 function getNamePendingInfo() {
