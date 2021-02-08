@@ -544,15 +544,8 @@ router.get("/names", function (req, res, next) {
                 }
             }
 
-            // console.log('blocks',blocks)
-            // console.log('transactions',transactions)
 
             coreApi.getRawTransactionsWithInputs(transactions).then(function (rawTxResult) {
-                let transactions = rawTxResult.transactions;
-
-                // res.locals.transactions = rawTxResult.transactions;
-                // res.locals.txInputsByTransaction = rawTxResult.txInputsByTransaction;
-                console.log('transactions length',rawTxResult.transactions.length)
                 let nameList = []
                 for (let i = 0; i < rawTxResult.transactions.length; i++) {
                     let transaction = rawTxResult.transactions[i];
@@ -564,7 +557,6 @@ router.get("/names", function (req, res, next) {
 
                         if ( vout[k]['scriptPubKey'] && vout[k]['scriptPubKey']["nameOp"] ){
                             let block = blocks.find(item => item.tx.includes(transaction.txid))
-                            console.log('scriptPubKey',vout[k]['scriptPubKey'],block.height)
                             nameList.push({
                                 name:vout[k]['scriptPubKey']["nameOp"]["name"],
                                 transaction:transaction,
@@ -581,8 +573,6 @@ router.get("/names", function (req, res, next) {
                 if(nameList.length > 0 ){
                     res.locals.nameList = nameList;
                     res.locals.nameCount = nameList.length;
-
-                    console.log('nameList:', nameList)
 
                     res.render("names");
 
@@ -632,8 +622,8 @@ router.get("/names-scan", function (req, res, next) {
         limit = parseInt(req.query.limit);
     }
 
-    if (req.query.search) {
-        search = req.query.search;
+    if (req.query.query) {
+        search = req.query.query;
     }
 
     if (req.query.offset) {
@@ -643,6 +633,7 @@ router.get("/names-scan", function (req, res, next) {
     if (req.query.sort) {
         sort = req.query.sort;
     }
+    console.log('search',req.query,search)
 
     res.locals.limit = 1000;
     res.locals.offset = 0;
@@ -840,7 +831,13 @@ router.post("/search", function (req, res, next) {
 
             res.redirect("./");
         });
-    } else {
+    } else if(query && query.length > 0  && query.indexOf('/') > -1){
+
+        req.session.userMessage = "No results found for query: " + query;
+
+        res.redirect("./names-scan?search=" + query);
+
+    }else {
         coreApi.getAddress(rawCaseQuery).then(function (validateaddress) {
             if (validateaddress && validateaddress.isvalid) {
                 res.redirect("./address/" + rawCaseQuery);
