@@ -58,7 +58,7 @@ function getPeerInfo() {
 	return getRpcData("getpeerinfo");
 }
 
-function getNameScanListInfo(start,count = 144,options) {
+function getNameScanListInfo(start,count = 1200,options) {
 	return getRpcDataWithParams({method:"name_scan", parameters:[start,count]});
 }
 
