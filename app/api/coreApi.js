@@ -211,19 +211,19 @@ function shouldCacheTransaction(tx) {
 }
 
 function getHistoryNameList(name) {
-	return tryCacheThenRpcApi(miscCache, "getNameList", 100 * ONE_SEC, function() {
+	return tryCacheThenRpcApi(miscCache, "getNameList", 5 * ONE_SEC, function() {
 		return rpcApi.getNameHistoryInfo(name);
 	});
 }
 
 function getNameList(name) {
-	return tryCacheThenRpcApi(miscCache, "getNameList-" + name, ONE_YR, function() {
+	return tryCacheThenRpcApi(miscCache, "getNameList-" + name, 20 * ONE_SEC, function() {
 		return rpcApi.getNameListInfo(name);
 	});
 }
 
 function getNameScanList(start,count,optional) {
-	return tryCacheThenRpcApi(miscCache, "getNameScanList-", ONE_YR, function() {
+	return tryCacheThenRpcApi(miscCache, "getNameScanList-", 2 * ONE_SEC, function() {
 		return rpcApi.getNameScanListInfo(start,count,optional);
 	});
 }
