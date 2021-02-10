@@ -650,7 +650,7 @@ router.get("/names-scan", function (req, res, next) {
         res.locals.nameOffset = 0;
         res.locals.nameCount = nameList.length;
 
-        console.log('nameList ',nameList)
+
 
         let blockHeights = [];
         let transactions = [];
@@ -660,12 +660,10 @@ router.get("/names-scan", function (req, res, next) {
             nameList = nameList.sort((a, b) => a.height > b.height ? 1 : -1)
         }
 
-
         for (let i = 0; i < nameList.length; i++) {
             blockHeights.push(nameList[i].height);
             transactions.push(nameList[i].txid)
         }
-
 
         res.locals.nameList = [];
 
@@ -690,7 +688,7 @@ router.get("/names-scan", function (req, res, next) {
                 }
 
             }
-
+            console.log('nameList ',nameList)
             res.locals.nameList = nameList;
 
             res.render("names");
