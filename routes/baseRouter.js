@@ -130,7 +130,6 @@ router.get("/", function (req, res, next) {
 
         coreApi.getBlocksByHeight(blockHeights).then(function (latestBlocks) {
             res.locals.latestBlocks = latestBlocks;
-            console.log('latestBlocks',latestBlocks)
             res.locals.blocksUntilDifficultyAdjustment = ((res.locals.difficultyPeriod + 1) * coinConfig.difficultyAdjustmentBlockCount) - latestBlocks[0].height;
 
             Promise.all(promises).then(function (promiseResults) {
@@ -623,6 +622,10 @@ router.get("/names-scan", function (req, res, next) {
         limit = parseInt(req.query.limit);
     }
 
+    if (req.query.search) {
+        search = req.query.search;
+    }
+
     if (req.query.query) {
         search = req.query.query;
     }
@@ -634,17 +637,20 @@ router.get("/names-scan", function (req, res, next) {
     if (req.query.sort) {
         sort = req.query.sort;
     }
-    console.log('search',req.query,search)
+    console.log('search',req.query)
+    console.log('search2 ',search)
 
     res.locals.limit = 100;
     res.locals.offset = 0;
     res.locals.sort = sort;
     res.locals.paginationBaseUrl = "./names-scan";
 
-    coreApi.getNameScanList(search, 100, '{"maxConf": 1000}').then(function (nameList) {
+    coreApi.getHistoryNameList(search).then(function (nameList) {
         res.locals.nameCount = 0;
         res.locals.nameOffset = 0;
         res.locals.nameCount = nameList.length;
+
+        console.log('nameList ',nameList)
 
         let blockHeights = [];
         let transactions = [];
@@ -793,7 +799,7 @@ router.get("/name-detail/:name", function (req, res, next) {
 
     res.locals.limit = 100;
     res.locals.offset = 0;
-    res.locals.paginationBaseUrl = "./names-scan";
+    res.locals.paginationBaseUrl = "./name-detail";
 
     coreApi.getHistoryNameList(name).then(function (nameList) {
         res.locals.nameCount = 0;
@@ -940,7 +946,7 @@ router.post("/search", function (req, res, next) {
         });
     } else if(query && query.length > 0  && query.indexOf('/') > -1){
 
-        req.session.userMessage = "No results found for query: " + query;
+        // req.session.userMessage = "No results found for query: " + query;
 
         res.redirect("./names-scan?search=" + query);
 
