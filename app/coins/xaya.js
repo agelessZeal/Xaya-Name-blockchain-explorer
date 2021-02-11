@@ -82,8 +82,8 @@ module.exports = {
 		"regtest": new Decimal(21000000),
 		"signet": new Decimal(21000000)
 	},
-	targetBlockTimeSeconds: 600,
-	targetBlockTimeMinutes: 10,
+	targetBlockTimeSeconds: 30,
+	targetBlockTimeMinutes: 0.4,
 	currencyUnits:currencyUnits,
 	currencyUnitsByName:{"CHI":currencyUnits[0], "mCHI":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
 	baseCurrencyUnit:currencyUnits[3],

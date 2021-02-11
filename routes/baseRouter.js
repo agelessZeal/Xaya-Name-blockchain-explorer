@@ -55,7 +55,7 @@ router.get("/", function (req, res, next) {
     res.locals.offset = 0;
     res.locals.sort = "desc";
 
-    var feeConfTargets = [1, 120, 2880, 20160];
+    var feeConfTargets = [1, 6, 144, 1008];
     res.locals.feeConfTargets = feeConfTargets;
 
     console.log('exchangeRates:', res.locals.exchangeRates)
@@ -73,7 +73,7 @@ router.get("/", function (req, res, next) {
     promises.push(coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets));
 
     // promiseResults[3] and [4]
-    promises.push(coreApi.getNetworkHashrate(1080));
+    promises.push(coreApi.getNetworkHashrate(2880));
     promises.push(coreApi.getNetworkHashrate(20160));
 
 
@@ -97,6 +97,8 @@ router.get("/", function (req, res, next) {
         // promiseResults[5]
         promises.push(coreApi.getBlocksStatsByHeight(blockHeights));
 
+        console.log('difficultyPeriod:', res.locals.difficultyPeriod)
+
         // promiseResults[6]
         promises.push(new Promise(function (resolve, reject) {
             coreApi.getBlockHeaderByHeight(coinConfig.difficultyAdjustmentBlockCount * res.locals.difficultyPeriod).then(function (difficultyPeriodFirstBlockHeader) {
@@ -104,9 +106,12 @@ router.get("/", function (req, res, next) {
             });
         }));
 
-        console.log('getblockchaininfo:', getblockchaininfo)
+
+
         if (getblockchaininfo.chain !== 'regtest') {
             var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
+
+
 
             // promiseResults[7] (if not regtest)
             promises.push(coreApi.getTxCountStats(targetBlocksPerDay / 4, -targetBlocksPerDay, "latest"));
@@ -128,7 +133,9 @@ router.get("/", function (req, res, next) {
             promises.push(coreApi.getChainTxStats(getblockchaininfo.blocks - 1));
         }
 
+
         coreApi.getBlocksByHeight(blockHeights).then(function (latestBlocks) {
+
             res.locals.latestBlocks = latestBlocks;
             res.locals.blocksUntilDifficultyAdjustment = ((res.locals.difficultyPeriod + 1) * coinConfig.difficultyAdjustmentBlockCount) - latestBlocks[0].height;
 
@@ -157,6 +164,8 @@ router.get("/", function (req, res, next) {
 
                 res.locals.hashrate1d = promiseResults[3];
                 res.locals.hashrate7d = promiseResults[4];
+
+                console.log('locals hashrates:',promiseResults[3],promiseResults[4])
 
 
                 var rawblockstats = promiseResults[5];

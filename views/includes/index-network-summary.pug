@@ -48,39 +48,41 @@ div.row.index-summary
 							span.d-none.d-xxl-inline #{hashrate7dayData1_n[0]}
 							small.border-dotted(title=`${hashrate1dayData0_n[1].abbreviation}H = ${hashrate1dayData0_n[1].name}-hash (x10^${hashrate1dayData0_n[1].exponent})`, data-toggle="tooltip") #{hashrate1dayData0_n[1].abbreviation}H/s
 
-				if (!["regtest", "signet"].includes(global.activeBlockchain))
-						tr
-							th.px-3.px-lg-0.px-xl-3
-								i.fas.fa-edit.mr-1.summary-icon
-								span.border-dotted(title="Estimate of the number of days the current global hashrate would require to produce all the hashes needed to re-write the entire blockchain.", data-toggle="tooltip") Chain Rewrite Days
-							td.text-right.text-monospace
-								- var globalHashCount = parseInt("0x" + getblockchaininfo.chainwork);
-								- var rewriteDays = globalHashCount / hashrate7d.sha256d / 60 / 60 / 24;
-								span #{new Decimal(rewriteDays).toDecimalPlaces(1)}
+					if (!["regtest", "signet"].includes(global.activeBlockchain))
+							tr
+								th.px-3.px-lg-0.px-xl-3
+									i.fas.fa-edit.mr-1.summary-icon
+									span.border-dotted(title="Estimate of the number of days the current global hashrate would require to produce all the hashes needed to re-write the entire blockchain.", data-toggle="tooltip") Chain Rewrite Days
+								td.text-right.text-monospace
+									- var globalHashCount = parseInt("0x" + getblockchaininfo.chainwork);
+									- var rewriteDays = globalHashCount / hashrate7d.sha256d / 60 / 60 / 24;
+									span #{new Decimal(rewriteDays).toDecimalPlaces(1)}
 
-				tr
-					th.px-3.px-lg-0.px-xl-3
-						i.fas.fa-dumbbell.mr-1.summary-icon
-						span sha256d Difficulty
-					td.text-right.text-monospace
-						- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 2);
-						span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
-							span #{difficultyData[0]}
-							small.px-2.px-lg-0.px-xl-2 x
-							span 10
-							sup #{difficultyData[1].exponent}
-				tr
+				if (miningInfo && miningInfo.difficulty)
 
-					th.px-3.px-lg-0.px-xl-3
-						i.fas.fa-dumbbell.mr-1.summary-icon
-						span neoscrypt Difficulty
-					td.text-right.text-monospace
-						- var difficultyData_n = utils.formatLargeNumber(miningInfo.difficulty.neoscrypt, 2);
-						span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
-							span #{difficultyData_n[0]}
-							small.px-2.px-lg-0.px-xl-2 x
-							span 10
-							sup #{difficultyData_n[1].exponent}
+					tr
+						th.px-3.px-lg-0.px-xl-3
+							i.fas.fa-dumbbell.mr-1.summary-icon
+							span sha256d Difficulty
+						td.text-right.text-monospace
+							- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 2);
+							span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
+								span #{difficultyData[0]}
+								small.px-2.px-lg-0.px-xl-2 x
+								span 10
+								sup #{difficultyData[1].exponent}
+					tr
+
+						th.px-3.px-lg-0.px-xl-3
+							i.fas.fa-dumbbell.mr-1.summary-icon
+							span neoscrypt Difficulty
+						td.text-right.text-monospace
+							- var difficultyData_n = utils.formatLargeNumber(miningInfo.difficulty.neoscrypt, 2);
+							span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
+								span #{difficultyData_n[0]}
+								small.px-2.px-lg-0.px-xl-2 x
+								span 10
+								sup #{difficultyData_n[1].exponent}
 
 				tr
 					th.px-3.px-lg-0.px-xl-3
@@ -99,34 +101,35 @@ div.row.index-summary
 						else
 							span.text-danger.border-dotted(title="There was an error getting this data. Check your application logs for possible explanation.", data-toggle="tooltip") Error
 
-				tr
-					th.px-3.px-lg-0.px-xl-3
-						i.fas.fa-clock.mr-1.summary-icon
-						span.border-dotted Block Time
-						//small.ml-1 (e#{difficultyPeriod.toLocaleString()})
-					td.text-right.text-monospace
-						- var firstBlockHeader = difficultyPeriodFirstBlockHeader;
-						- var currentBlock = latestBlocks[0];
-						- var heightDiff = currentBlock.height - firstBlockHeader.height;
-						- var timeDiff = currentBlock.mediantime - firstBlockHeader.mediantime;
-						- var timePerBlock = timeDiff / heightDiff;
-						- var timePerBlockDuration = moment.duration(timePerBlock * 1000);
-						- var daysUntilAdjustment = new Decimal(blocksUntilDifficultyAdjustment).times(timePerBlock).dividedBy(60 * 60 * 24);
-						- var duaDP1 = daysUntilAdjustment.toDP(1);
-						- var daysUntilAdjustmentStr = daysUntilAdjustment > 1 ? `~${duaDP1} day${duaDP1 == "1" ? "" : "s"}` : "< 1 day"
+				if (difficultyPeriodFirstBlockHeader)
+					tr
+						th.px-3.px-lg-0.px-xl-3
+							i.fas.fa-clock.mr-1.summary-icon
+							span.border-dotted Block Time
+							//small.ml-1 (e#{difficultyPeriod.toLocaleString()})
+						td.text-right.text-monospace
+							- var firstBlockHeader = difficultyPeriodFirstBlockHeader;
+							- var currentBlock = latestBlocks[0];
+							- var heightDiff = currentBlock.height - firstBlockHeader.height;
+							- var timeDiff = currentBlock.mediantime - firstBlockHeader.mediantime;
+							- var timePerBlock = timeDiff / heightDiff;
+							- var timePerBlockDuration = moment.duration(timePerBlock * 1000);
+							- var daysUntilAdjustment = new Decimal(blocksUntilDifficultyAdjustment).times(timePerBlock).dividedBy(60 * 60 * 24);
+							- var duaDP1 = daysUntilAdjustment.toDP(1);
+							- var daysUntilAdjustmentStr = daysUntilAdjustment > 1 ? `~${duaDP1} day${duaDP1 == "1" ? "" : "s"}` : "< 1 day"
 
-						if (timePerBlock > 600)
-							- var diffAdjPercent = new Decimal(timeDiff / heightDiff / 600).times(100).minus(100);
-							- var diffAdjText = `Blocks during the current difficulty epoch have taken this long, on average, to be mined. If this pace continues, then in ${blocksUntilDifficultyAdjustment.toLocaleString()} block${blocksUntilDifficultyAdjustment == 1 ? "" : "s"} (${daysUntilAdjustmentStr}) the difficulty will adjust downward: -${diffAdjPercent.toDP(1)}%`;
-							- var diffAdjSign = "-";
-						else
-							- var diffAdjPercent = new Decimal(100).minus(new Decimal(timeDiff / heightDiff / 600).times(100));
-							- var diffAdjText = `Blocks during the current difficulty epoch have taken this long, on average, to be mined. If this pace continues, then in ${blocksUntilDifficultyAdjustment.toLocaleString()} block${blocksUntilDifficultyAdjustment == 1 ? "" : "s"} (${daysUntilAdjustmentStr}) the difficulty will adjust upward: +${diffAdjPercent.toDP(1)}%`;
-							- var diffAdjSign = "+";
+							if (timePerBlock > 600)
+								- var diffAdjPercent = new Decimal(timeDiff / heightDiff / 600).times(100).minus(100);
+								- var diffAdjText = `Blocks during the current difficulty epoch have taken this long, on average, to be mined. If this pace continues, then in ${blocksUntilDifficultyAdjustment.toLocaleString()} block${blocksUntilDifficultyAdjustment == 1 ? "" : "s"} (${daysUntilAdjustmentStr}) the difficulty will adjust downward: -${diffAdjPercent.toDP(1)}%`;
+								- var diffAdjSign = "-";
+							else
+								- var diffAdjPercent = new Decimal(100).minus(new Decimal(timeDiff / heightDiff / 600).times(100));
+								- var diffAdjText = `Blocks during the current difficulty epoch have taken this long, on average, to be mined. If this pace continues, then in ${blocksUntilDifficultyAdjustment.toLocaleString()} block${blocksUntilDifficultyAdjustment == 1 ? "" : "s"} (${daysUntilAdjustmentStr}) the difficulty will adjust upward: +${diffAdjPercent.toDP(1)}%`;
+								- var diffAdjSign = "+";
 
-						span.border-dotted #{timePerBlockDuration.format()}
-							if (!isNaN(diffAdjPercent))
-								//small.text-muted.ml-1 (#{diffAdjSign}#{diffAdjPercent.toDP(1)}%)
+							span.border-dotted #{timePerBlockDuration.format()}
+								if (!isNaN(diffAdjPercent))
+									//small.text-muted.ml-1 (#{diffAdjSign}#{diffAdjPercent.toDP(1)}%)
 
 
 	div(class=colClass)
