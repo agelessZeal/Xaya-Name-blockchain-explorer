@@ -313,7 +313,7 @@ function refreshNetworkVolumes() {
 	coreApi.getBlockchainInfo().then(function(result) {
 		var promises = [];
 
-		var blocksPerDay = 144 + 20; // 20 block padding
+		var blocksPerDay = 1080 + 20; // 20 block padding
 
 		for (var i = 0; i < (blocksPerDay * 1); i++) {
 			if (result.blocks - i >= 0) {

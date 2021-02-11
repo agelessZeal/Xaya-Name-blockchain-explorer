@@ -55,7 +55,7 @@ router.get("/", function (req, res, next) {
     res.locals.offset = 0;
     res.locals.sort = "desc";
 
-    var feeConfTargets = [1, 6, 144, 1008];
+    var feeConfTargets = [1, 120, 2880, 20160];
     res.locals.feeConfTargets = feeConfTargets;
 
     console.log('exchangeRates:', res.locals.exchangeRates)
@@ -73,8 +73,8 @@ router.get("/", function (req, res, next) {
     promises.push(coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets));
 
     // promiseResults[3] and [4]
-    promises.push(coreApi.getNetworkHashrate(144));
-    promises.push(coreApi.getNetworkHashrate(1008));
+    promises.push(coreApi.getNetworkHashrate(1080));
+    promises.push(coreApi.getNetworkHashrate(20160));
 
 
     coreApi.getBlockchainInfo().then(function (getblockchaininfo) {
@@ -1857,13 +1857,13 @@ router.get("/tx-stats", function (req, res, next) {
         res.locals.getblockchaininfo = result.getblockchaininfo;
         res.locals.txStats = result.txCountStats;
 
-        coreApi.getTxCountStats(targetBlocksPerDay / 4, -144, "latest").then(function (result2) {
+        coreApi.getTxCountStats(targetBlocksPerDay / 4, -2880, "latest").then(function (result2) {
             res.locals.txStatsDay = result2.txCountStats;
 
-            coreApi.getTxCountStats(targetBlocksPerDay / 4, -144 * 7, "latest").then(function (result3) {
+            coreApi.getTxCountStats(targetBlocksPerDay / 4, -2880 * 7, "latest").then(function (result3) {
                 res.locals.txStatsWeek = result3.txCountStats;
 
-                coreApi.getTxCountStats(targetBlocksPerDay / 4, -144 * 30, "latest").then(function (result4) {
+                coreApi.getTxCountStats(targetBlocksPerDay / 4, -2880 * 30, "latest").then(function (result4) {
                     res.locals.txStatsMonth = result4.txCountStats;
 
                     res.render("tx-stats");
